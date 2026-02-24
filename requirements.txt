@@ -1,21 +1,39 @@
-torch>=2.1.0
-torchaudio>=2.1.0
-openai-whisper>=20231117
-whisperx>=3.1.1
-transformers>=4.38.0
-sentencepiece>=0.1.99
-TTS>=0.22.0
-librosa>=0.10.1
-soundfile>=0.12.1
-pyloudnorm>=0.1.1
-scipy>=1.12.0
-numpy>=1.26.0
-ffmpeg-python>=0.2.0
-opencv-python>=4.9.0
-basicsr>=1.4.2
-facexlib>=0.3.0
-gfpgan>=1.3.8
-scikit-image>=0.22.0
-tqdm>=4.66.0
-loguru>=0.7.2
-rich>=13.7.0
+# ── Core ML framework (Apple Silicon / MPS) ──────────────────────────────────
+torch>=2.2.0
+torchvision>=0.17.0
+torchaudio>=2.2.0
+
+# ── Speech recognition ────────────────────────────────────────────────────────
+openai-whisper
+whisper-timestamped
+
+# ── Translation + NLP ─────────────────────────────────────────────────────────
+transformers>=4.40.0
+sentencepiece
+sacremoses
+
+# ── Text-to-Speech (voice cloning) ───────────────────────────────────────────
+TTS>=0.22.0          # Coqui XTTS v2
+
+# ── Audio processing ──────────────────────────────────────────────────────────
+librosa>=0.10.0
+soundfile
+pydub
+pyloudnorm
+numpy
+
+# ── Video / image processing ──────────────────────────────────────────────────
+opencv-python
+ffmpeg-python
+scikit-image
+Pillow
+
+# ── Face restoration (Real-ESRGAN, MPS-safe) ─────────────────────────────────
+basicsr
+facexlib
+realesrgan
+
+# ── Utilities ─────────────────────────────────────────────────────────────────
+tqdm
+requests
+gdown
