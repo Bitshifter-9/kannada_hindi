@@ -1,39 +1,11 @@
-# ── Core ML framework (Apple Silicon / MPS) ──────────────────────────────────
-torch>=2.2.0
-torchvision>=0.17.0
-torchaudio>=2.2.0
-
-# ── Speech recognition ────────────────────────────────────────────────────────
-openai-whisper
-whisper-timestamped
-
-# ── Translation + NLP ─────────────────────────────────────────────────────────
-transformers>=4.40.0
-sentencepiece
-sacremoses
-
-# ── Text-to-Speech (voice cloning) ───────────────────────────────────────────
-TTS>=0.22.0          # Coqui XTTS v2
-
-# ── Audio processing ──────────────────────────────────────────────────────────
+ffmpeg-python
 librosa>=0.10.0
 soundfile
 pydub
 pyloudnorm
 numpy
-
-# ── Video / image processing ──────────────────────────────────────────────────
 opencv-python
-ffmpeg-python
-scikit-image
 Pillow
-
-# ── Face restoration (Real-ESRGAN, MPS-safe) ─────────────────────────────────
-basicsr
-facexlib
-realesrgan
-
-# ── Utilities ─────────────────────────────────────────────────────────────────
 tqdm
-requests
-gdown
+edge-tts
+google-generativeai

@@ -1,21 +1,15 @@
-import gc
 import json
+import asyncio
 from pathlib import Path
 
-import torch
+import edge_tts
 import librosa
 import soundfile as sf
 import numpy as np
-from TTS.api import TTS
 
 
-DEVICE = "mps" if torch.backends.mps.is_available() else "cpu"
-
-
-def _build_full_hindi_text(translated_path):
-    with open(translated_path, encoding="utf-8") as f:
-        segments = json.load(f)
-    return " ".join(s["hindi"] for s in segments), segments
+VOICE_FEMALE = "hi-IN-SwaraNeural"
+VOICE_MALE = "hi-IN-MadhurNeural"
 
 
 def _time_stretch_to_duration(audio, sr, target_duration):
@@ -23,7 +17,7 @@ def _time_stretch_to_duration(audio, sr, target_duration):
     if abs(current_duration - target_duration) < 0.05:
         return audio
     rate = current_duration / target_duration
-    rate = max(0.7, min(rate, 1.5))
+    rate = max(0.75, min(rate, 1.4))
     stretched = librosa.effects.time_stretch(audio, rate=rate)
     target_samples = int(target_duration * sr)
     if len(stretched) >= target_samples:
@@ -33,36 +27,31 @@ def _time_stretch_to_duration(audio, sr, target_duration):
     return padded
 
 
-def synthesise(translated_path, clip_audio_path, clip_duration, out_dir="outputs"):
+async def _synthesize(text, output_path, voice):
+    communicate = edge_tts.Communicate(text, voice, rate="+0%", pitch="+0Hz")
+    await communicate.save(output_path)
+
+
+def synthesise(translated_path, clip_duration, out_dir="outputs", voice="male"):
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
+    raw_path = str(out / "hindi_tts_raw.wav")
     out_path = str(out / "hindi_tts.wav")
 
-    full_text, _ = _build_full_hindi_text(translated_path)
+    with open(translated_path, encoding="utf-8") as f:
+        segments = json.load(f)
+    hindi_text = " ".join(s["hindi"] for s in segments)
 
-    print(f"[tts] Loading XTTS v2 on {DEVICE} ...")
-    tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to(DEVICE)
+    selected_voice = VOICE_MALE if voice == "male" else VOICE_FEMALE
+    print(f"[tts] Synthesising with {selected_voice} ...")
+    print(f"[tts] Text: {hindi_text[:100]}")
 
-    ref_audio, ref_sr = librosa.load(clip_audio_path, sr=22050, mono=True, duration=6.0)
-    ref_tmp = str(out / "ref_speaker.wav")
-    sf.write(ref_tmp, ref_audio, ref_sr)
+    asyncio.run(_synthesize(hindi_text, raw_path, selected_voice))
 
-    print(f"[tts] Synthesising Hindi text ({len(full_text)} chars) ...")
-    tts.tts_to_file(
-        text=full_text,
-        speaker_wav=ref_tmp,
-        language="hi",
-        file_path=out_path,
-    )
-
-    audio, sr = librosa.load(out_path, sr=None, mono=True)
+    audio, sr = librosa.load(raw_path, sr=None, mono=True)
+    audio = audio / (np.max(np.abs(audio)) + 1e-8)
     audio = _time_stretch_to_duration(audio, sr, clip_duration)
     sf.write(out_path, audio, sr)
-
-    del tts
-    gc.collect()
-    if DEVICE == "mps":
-        torch.mps.empty_cache()
 
     actual_dur = len(audio) / sr
     print(f"[tts] Done — {actual_dur:.2f}s (target {clip_duration}s) → {out_path}")

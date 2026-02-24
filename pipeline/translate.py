@@ -7,19 +7,22 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 
 DEVICE = "mps" if torch.backends.mps.is_available() else "cpu"
-MODEL_NAME = "Helsinki-NLP/opus-mt-kn-hi"
+MODEL_NAME = "facebook/nllb-200-distilled-600M"
+SRC_LANG = "kan_Knda"   # Kannada
+TGT_LANG = "hin_Deva"   # Hindi
 
 
 def _load_model():
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, src_lang=SRC_LANG)
     model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_NAME).to(DEVICE)
     return tokenizer, model
 
 
 def _translate_text(text, tokenizer, model):
     inputs = tokenizer(text, return_tensors="pt", padding=True, truncation=True, max_length=512).to(DEVICE)
+    tgt_lang_id = tokenizer.convert_tokens_to_ids(TGT_LANG)
     with torch.no_grad():
-        output = model.generate(**inputs, max_new_tokens=512)
+        output = model.generate(**inputs, forced_bos_token_id=tgt_lang_id, max_new_tokens=512)
     return tokenizer.decode(output[0], skip_special_tokens=True)
 
 

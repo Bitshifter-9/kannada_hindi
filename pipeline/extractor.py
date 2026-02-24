@@ -8,9 +8,9 @@ def extract_clip(
     out_dir: str = "outputs",
 ) -> tuple[str, str]:
 
-    out = Path(out_dir)
+    out = Path(out_dir).resolve()
     out.mkdir(parents=True, exist_ok=True)
-
+    source = str(Path(source).resolve())
     video_out = str(out / "clip.mp4")
     audio_out = str(out / "clip.wav")
     duration = end - start
@@ -20,7 +20,8 @@ def extract_clip(
             "-ss", str(start),
             "-i", source,
             "-t", str(duration),
-            "-c", "copy",
+            "-c:v", "libx264", "-crf", "16", "-preset", "fast",
+            "-c:a", "aac", "-b:a", "192k",
             video_out,
         ],
         check=True,
