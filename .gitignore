@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+venv/
+models/
+outputs/
+*.pth
+*.ckpt
+*.safetensors
+*.bin
+.env
+.DS_Store
+*.log
