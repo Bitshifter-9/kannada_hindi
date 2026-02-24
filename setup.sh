@@ -27,10 +27,9 @@ fi
 
 WAV2LIP_WEIGHTS="$MODELS_DIR/wav2lip_gan.pth"
 if [ ! -f "$WAV2LIP_WEIGHTS" ]; then
-    log "Downloading Wav2Lip GAN weights (~272 MB)..."
-   
-    gdown --id 1P4ifER73FK20NHRxogmSKnDSjQLFKVWX \
-          --output "$WAV2LIP_WEIGHTS"
+    log "Downloading Wav2Lip GAN weights (~416 MB)..."
+    curl -L "https://huggingface.co/numz/wav2lip_studio/resolve/main/Wav2lip/wav2lip_gan.pth" \
+         -o "$WAV2LIP_WEIGHTS" --progress-bar
 fi
 
 
@@ -39,8 +38,8 @@ mkdir -p "$FACE_DET_DIR"
 FACE_DET_WEIGHTS="$FACE_DET_DIR/s3fd.pth"
 if [ ! -f "$FACE_DET_WEIGHTS" ]; then
     log "Downloading face detection weights (~86 MB)..."
-    gdown --id 1ZjQLit8mvRvkTfZbYK3HMfPQ6SBRxjn6 \
-          --output "$FACE_DET_WEIGHTS"
+    curl -L "https://www.adrianbulat.com/downloads/python-fan/s3fd-619a316812.pth" \
+         -o "$FACE_DET_WEIGHTS" --progress-bar
 fi
 
 
